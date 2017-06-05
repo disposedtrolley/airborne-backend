@@ -59,57 +59,93 @@ class Flights(Resource):
         response = query.send()
         trips = response.get_trips()
 
-        trip0 = trips[0]
-
         output = {
-            "cost": trip0.get_cost(),
-            "onward_flight": {
-                "legs": [],
-                "layovers": []
-            },
-            "return_flight": {
-                "legs": [],
-                "layovers": []
-            }
+          "options": []
         }
 
-        journeys = trip0.get_journeys()
-        for i in range(len(journeys)):
-            curr_journey = journeys[i]
-            legs = curr_journey.get_legs()
-            layovers = curr_journey.get_layovers()
-            if i == 0:
-                # onward flight
-                for leg in legs:
-                    origin = leg.get_origin()
-                    dest = leg.get_dest()
-                    flight = leg.get_flight()
-                    aircraft = leg.get_aircraft()
-                    output["onward_flight"]["legs"].append(
-                        {
-                            "origin_name": origin["name"],
-                            "origin_city": origin["city"],
-                            "origin_code": origin["code"],
-                            "dest_name": dest["name"],
-                            "dest_city": dest["city"],
-                            "dest_code": dest["code"],
-                            "duration": leg.get_duration(),
-                            "dept_time": str(leg.get_dept_time()),
-                            "arr_time": str(leg.get_arr_time()),
-                            "flight": flight["name"] + " " + flight["carrier"] + flight["number"],
-                            "aircraft": aircraft["name"] + " (" + aircraft["code"] + ")"
-                        }
-                    )
-                for layover in layovers:
-                    airport = layover.get_layover_airport()
-                    output["onward_flight"]["layovers"].append(
-                        {
-                            "airport_name": airport["name"],
-                            "airport_code": airport["code"],
-                            "duration": layover.get_layover_dur()
-                        }
-                    )
-        return(output)
+        for trip_option in trips:
+
+            trip_data = {
+                "cost": trip_option.get_cost(),
+                "onward_flight": {
+                    "legs": [],
+                    "layovers": []
+                },
+                "return_flight": {
+                    "legs": [],
+                    "layovers": []
+                }
+            }
+
+            journeys = trip_option.get_journeys()
+            for i in range(len(journeys)):
+                curr_journey = journeys[i]
+                legs = curr_journey.get_legs()
+                layovers = curr_journey.get_layovers()
+                if i == 0:
+                    # onward flight
+                    for leg in legs:
+                        origin = leg.get_origin()
+                        dest = leg.get_dest()
+                        flight = leg.get_flight()
+                        aircraft = leg.get_aircraft()
+                        trip_data["onward_flight"]["legs"].append(
+                            {
+                                "origin_name": origin["name"],
+                                "origin_city": origin["city"],
+                                "origin_code": origin["code"],
+                                "dest_name": dest["name"],
+                                "dest_city": dest["city"],
+                                "dest_code": dest["code"],
+                                "duration": leg.get_duration(),
+                                "dept_time": str(leg.get_dept_time()),
+                                "arr_time": str(leg.get_arr_time()),
+                                "flight": flight["name"] + " " + flight["carrier"] + flight["number"],
+                                "aircraft": aircraft["name"] + " (" + aircraft["code"] + ")"
+                            }
+                        )
+                    for layover in layovers:
+                        airport = layover.get_layover_airport()
+                        trip_data["onward_flight"]["layovers"].append(
+                            {
+                                "airport_name": airport["name"],
+                                "airport_code": airport["code"],
+                                "duration": layover.get_layover_dur()
+                            }
+                        )
+                else:
+                    # return flight
+                    for leg in legs:
+                        origin = leg.get_origin()
+                        dest = leg.get_dest()
+                        flight = leg.get_flight()
+                        aircraft = leg.get_aircraft()
+                        trip_data["return_flight"]["legs"].append(
+                            {
+                                "origin_name": origin["name"],
+                                "origin_city": origin["city"],
+                                "origin_code": origin["code"],
+                                "dest_name": dest["name"],
+                                "dest_city": dest["city"],
+                                "dest_code": dest["code"],
+                                "duration": leg.get_duration(),
+                                "dept_time": str(leg.get_dept_time()),
+                                "arr_time": str(leg.get_arr_time()),
+                                "flight": flight["name"] + " " + flight["carrier"] + flight["number"],
+                                "aircraft": aircraft["name"] + " (" + aircraft["code"] + ")"
+                            }
+                        )
+                    for layover in layovers:
+                        airport = layover.get_layover_airport()
+                        trip_data["return_flight"]["layovers"].append(
+                            {
+                                "airport_name": airport["name"],
+                                "airport_code": airport["code"],
+                                "duration": layover.get_layover_dur()
+                            }
+                        )
+            output["options"].append(trip_data)
+        return output
 
 
 api.add_resource(Airports, '/airports')

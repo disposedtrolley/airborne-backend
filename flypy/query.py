@@ -53,10 +53,6 @@ class Query:
                               data=json.dumps(payload),
                               headers={'Content-Type': 'application/json'})
             r = r.text
-
-            text_file = open("flypy/data/test_data_multi_leg.json", "w")
-            text_file.write(r)
-            text_file.close()
             query_response = QueryResponse(json.loads(r))
 
             return query_response
@@ -121,6 +117,7 @@ class Query:
             "request": {
                 "passengers": self.pax,
                 "slice": trip_slice,
+                "solutions": 10
             }
         }
         if self.no_results:
